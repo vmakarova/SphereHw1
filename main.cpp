@@ -12,11 +12,12 @@ const static size_t BASE_SIZE= 1024;
 class MySet {
   int32_t *elements;
   size_t size;
+  size_t memory_size;
   
 public:  
   MySet(size_t size = 0);
   ~MySet();
-  MySet(const MySet&) = default;
+  MySet(const MySet&);
   MySet& operator=(const MySet&) = default;
   
   MySet(MySet&&) = default;
@@ -40,6 +41,7 @@ MySet::MySet(size_t _size)
 {
    elements = (int32_t*) malloc((_size == 0 ? 1024 : _size)* sizeof(int32_t));
    size = 0;
+   memory_size = _size == 0 ? 1024 : _size;
 }
 
 MySet::~MySet()
@@ -47,6 +49,15 @@ MySet::~MySet()
     free(elements);
 }
 
+MySet::MySet(const MySet& other)
+{
+    elements = (int32_t*) malloc((other.memory_size)* sizeof(int32_t));
+    size = 0;
+    memory_size = other.memory_size;
+    for (size_t i = 0; i < other.size; ++i){
+        insert(other[i]);
+    } 
+}
 
 MySet MySet::operator+(const MySet& other)
 {
@@ -102,7 +113,7 @@ std::string MySet::to_string()
 
 void MySet::insert(int32_t elem)
 {
-   elements[size] = elem;
+   elements[size % memory_size] = elem;
    ++size;
 }
 
@@ -114,7 +125,7 @@ int main(int argc, char **argv) {
               << SET_MINUS        << " for minus" << std::endl;
     std::cout << "Template: {1 2 3 } " << SET_UNION << " {4 5 }" << std::endl;
     std::cout << "Answer: {1 2 3 4 5 }." << std::endl;
-    std::cout << "ATTENTION! Use space after last set's element and before \"}\"";
+    std::cout << "ATTENTION! Use space after last set's element and before \"}\"" << std::endl;
     std::string  input_data = "";
     std::getline ( std::cin, input_data);
     size_t pos_begin = input_data.find("{");
